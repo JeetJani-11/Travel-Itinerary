@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Travel Itinerary</title>
+    <style>
+      /* General Styles */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .itinerary {
+        width: 100%;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: #333333;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      h2 {
+        font-size: 2em;
+        margin-bottom: 10px;
+      }
+
+      h3 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
+      }
+
+      p {
+        margin-bottom: 10px;
+      }
+
+      /* List Styles */
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      li {
+        margin-bottom: 5px;
+      }
+
+      /* Date and Place Styles */
+      .date {
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        margin-left: 10px;
+        margin-right: 30px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+      }
+
+      /* Notes Styles */
+      .notes p {
+        margin-bottom: 15px;
+      }
+
+      /* Card Effect for Sections */
+      .destination,
+      .friends,
+      .dates,
+      .notes {
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: #f5f7fa;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .itinerary {
+        perspective: 1000px;
+      }
+
+      .destination,
+      .friends,
+      .dates,
+      .notes {
+        transform: rotateX(0deg) rotateY(0deg);
+        transition: transform 0.5s;
+      }
+
+      .destination:hover,
+      .friends:hover,
+      .dates:hover,
+      .notes:hover {
+        transform: rotateX(10deg) rotateY(10deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="itinerary">
+      <h1>Travel Itinerary</h1>
+      <div class="destination">
+        <h2>{{destination.name}}</h2>
+        <p>{{destination.startDate}} - {{destination.endDate}}</p>
+      </div>
+      <div class="friends">
+        <h2>Friends in the Trip</h2>
+        <ul>
+          {{#each friends}}
+          <li>{{this.name}} - ({{this.email}})</li>
+          {{/each}}
+        </ul>
+      </div>
+      <div class="dates">
+        <h2>Dates and Places to Visit</h2>
+        {{#each dates}}
+        <div class="date">
+          <h3>{{this.date}}</h3>
+          <ul>
+            {{#each this.places}}
+            <li>{{this.name}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+      <div class="notes">
+        <h2>Notes</h2>
+        {{#each notes}}
+        <p>{{this.content}}</p>
+        {{/each}}
+      </div>
+    </div>
+  </body>
+</html>
