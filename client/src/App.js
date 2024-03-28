@@ -4,7 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "./App.css";
 import { Outlet } from "react-router-dom";
-import ApplicationBar from "./utils/ApplicationBar";
+import ApplicationBar from "./components/ApplicationBar";
 
 function App() {
   return (

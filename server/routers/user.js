@@ -8,24 +8,38 @@ const User = require("../models/User");
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     const hashPassword = await bcrypt.hash(password, 8);
     const user = new User({ name, email, password: hashPassword });
-
     const token = await user.generateAccessToken();
-
+    res.cookie("token", token, {
+      path: "/",
+      httpOnly: false,
+    });
+    res.cookie("user", user, {
+      path: "/",
+      httpOnly: false,
+    });
     res.status(200).send({ user, token });
   } catch (e) {
     res.status(500).send({ e: e.message });
   }
 });
 
-router.get("/login/federated/google", passport.authenticate("google"));
+router.get(
+  "/login/federated/google",
+  passport.authenticate("google", {
+    session: false,
+    scope: ["profile", "email"],
+    accessType: "offline",
+    prompt: "consent",
+  })
+);
 
 router.get("/redirect", async (req, res, next) => {
   passport.authenticate(
     "google",
     {
+      session: false,
       successRedirect: "http://localhost:3000",
       failureRedirect: "http://localhost:3000/login",
     },
@@ -39,6 +53,10 @@ router.get("/redirect", async (req, res, next) => {
       }
       const token = await user.generateAccessToken();
       res.cookie("token", token, {
+        path: "/",
+        httpOnly: false,
+      });
+      res.cookie("user", user, {
         path: "/",
         httpOnly: false,
       });
@@ -60,6 +78,10 @@ router.post("/login", async (req, res, next) => {
       }
       const token = await user.generateAccessToken();
       res.cookie("token", token, {
+        path: "/",
+        httpOnly: false,
+      });
+      res.cookie("user", user, {
         path: "/",
         httpOnly: false,
       });
@@ -92,12 +114,12 @@ router.get("/user", auth, async (req, res) => {
 
 router.get("/users/:s", async (req, res) => {
   try {
-    const regex = new RegExp(req.params.s, "i"); 
+    const regex = new RegExp(req.params.s, "i");
     const users = await User.find({ name: { $regex: regex } });
     console.log(users);
     res.send(users);
   } catch (e) {
-    res.status(500).send({e: e.message});
+    res.status(500).send({ e: e.message });
   }
 });
 router.post(

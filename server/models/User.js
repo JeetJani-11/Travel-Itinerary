@@ -4,7 +4,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const JWTStratergy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
-var GoogleStrategy = require("passport-google-oidc");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -111,9 +111,7 @@ passport.use(
         "109538876893-s5pj4e95rk96k50eq9vofm7kv9kcn8fo.apps.googleusercontent.com",
       clientSecret: "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",
       callbackURL: "http://localhost:3001/redirect",
-      scope: ["profile", "email"],
-    },
-    async function verify(issuer, profile, cb) {
+    },(async (accessToken, refreshToken, profile, cb) => {
       const email = profile.emails[0].value;
       try {
         const user = await User.findOne({ email, googleId: profile.id });
@@ -125,14 +123,12 @@ passport.use(
           });
           return cb(null, user, { message: "Logged In Successfully" });
         }
-
         return cb(null, user, { message: "Logged In Successfully" });
       } catch (err) {
         cb(err);
       }
-    }
-  )
-);
+    })
+    ))
 
 passport.use(
   new JWTStratergy(
