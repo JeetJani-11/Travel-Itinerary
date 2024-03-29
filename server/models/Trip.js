@@ -7,24 +7,33 @@ const TripSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    coordinates: {
+      x: {
+        type: Number,
+    //  required: true,
+      },
+      y: {
+        type: Number,
+    //  required: true,
+      },
+    },
     from: {
       type: Date,
-      required : true
+      required: true,
     },
     to: {
       type: Date,
-      required : true ,
-      
+      required: true,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
     },
     travellers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-      }
+      },
     ],
     notes: [
       {
@@ -32,7 +41,7 @@ const TripSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true  , toJSON : {virtuals : true}}
+  { timestamps: true, toJSON: { virtuals: true } }
 );
 
 TripSchema.virtual("itinerary", {
@@ -41,12 +50,12 @@ TripSchema.virtual("itinerary", {
   foreignField: "trip",
 });
 
-TripSchema.pre('findOneAndDelete'  , async function(next){
-  const filter = this.getFilter()
- console.log (filter._id)
-  await Place.deleteMany({trip : filter._id})
-  return next()
-})
+TripSchema.pre("findOneAndDelete", async function (next) {
+  const filter = this.getFilter();
+  console.log(filter._id);
+  await Place.deleteMany({ trip: filter._id });
+  return next();
+});
 
 const Trip = new mongoose.model("Trip", TripSchema);
 

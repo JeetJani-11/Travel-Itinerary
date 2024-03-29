@@ -18,8 +18,7 @@ router.post(
         travellers: [req.user._id],
       });
       await trip.save();
-      const user = await User.findById(req.user._id).populate("trips");
-      res.send(user.trips);
+      res.send(trip);
     } catch (e) {
       res.status(500).send({ e: e.message });
     }

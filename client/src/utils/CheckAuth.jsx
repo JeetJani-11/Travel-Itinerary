@@ -14,8 +14,12 @@ export default function CheckAuth({ children }) {
     const tokenCookie = Cookie.get("token");
     console.log(tokenLocalStorage, tokenCookie);
     if (tokenLocalStorage && tokenCookie && tokenLocalStorage === tokenCookie) {
+      dispatch(setUser({ user: Cookie.get("user"), token: tokenCookie }));
       setCheck(true);
-    } else if ((tokenCookie && !tokenLocalStorage) || (tokenLocalStorage && tokenCookie && tokenLocalStorage !== tokenCookie)) {
+    } else if (
+      (tokenCookie && !tokenLocalStorage) ||
+      (tokenLocalStorage && tokenCookie && tokenLocalStorage !== tokenCookie)
+    ) {
       dispatch(setUser({ user: Cookie.get("user"), token: tokenCookie }));
       setCheck(true);
     } else {

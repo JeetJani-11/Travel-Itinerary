@@ -133,7 +133,9 @@ passport.use(
 passport.use(
   new JWTStratergy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest:  ExtractJwt.fromAuthHeaderAsBearerToken({
+        authHeader: 'authorization' 
+      }),
       secretOrKey: process.env.SECRET,
       passReqToCallback: true,
     },
