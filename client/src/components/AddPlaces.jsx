@@ -10,19 +10,22 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import "swiper/css";
-import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import "swiper/css/pagination";
+import { useDispatch } from "react-redux";
+import { addPlace } from "../store/tripSlice";
 import { Pagination } from "swiper/modules";
 import { useSelector } from "react-redux";
 
-const PlacesDetail = ({date , place, tripId }) => {
+const PlacesDetail = ({ date, place, tripId }) => {
   const token = useSelector((state) => state.auth.token);
-
-  const addPlace = async (place) => {
+  const dispatch = useDispatch();
+  const addPlacehandler = async (place) => {
+    console.log(place);
     const res = await fetch(`http://localhost:3001/addPlaces/${tripId}`, {
       method: "POST",
       headers: {
@@ -31,10 +34,14 @@ const PlacesDetail = ({date , place, tripId }) => {
       },
       body: JSON.stringify({
         name: place.name,
-        date: date ,
+        date: date,
         location: place.location,
       }),
     });
+    const data = await res.json();
+    if (res.ok) {
+      dispatch(addPlace(data));
+    }
     console.log(res);
   };
 
@@ -67,7 +74,7 @@ const PlacesDetail = ({date , place, tripId }) => {
           startIcon={<AddIcon />}
           sx={{ marginTop: 1 }}
           onClick={() => {
-            addPlace(place);
+            addPlacehandler(place);
           }}
         >
           Add Place
@@ -91,12 +98,13 @@ export default function PlacesSlide() {
   const trip = useSelector((state) => state.trip.trip);
   const token = useSelector((state) => state.auth.token);
   const coordinates = trip.coordinates;
+  const places = trip.itinerary;
   const tripId = trip._id;
   const [date, setDate] = React.useState(dayjs(trip.from));
   const [loading, setLoading] = React.useState(false);
   const [nearby, setNearby] = React.useState({});
   const [category, setCategory] = React.useState();
-    console.log(date);
+  console.log(date);
   const handleChange = async (event) => {
     setCategory(event.target.value);
     setLoading(true);
@@ -123,8 +131,15 @@ export default function PlacesSlide() {
   };
 
   return (
-    <Card>
-      <FormControl fullWidth>
+    <Card
+      sx={{
+        margin: "10px",
+        padding: "10px",
+        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+        borderRadius: "8px",
+      }}
+    >
+      <FormControl fullWidth sx={{ margin: "5px" }}>
         <InputLabel id="demo-simple-select-label">Category</InputLabel>
         <Select
           labelId="demo-simple-select-label"
@@ -142,15 +157,15 @@ export default function PlacesSlide() {
           ))}
         </Select>
       </FormControl>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={['DatePicker', 'DatePicker']}>
-        <DatePicker
-          label="Controlled picker"
-          value={date}
-          onChange={(newValue) => setDate(newValue)}
-        />
-      </DemoContainer>
-    </LocalizationProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ margin: "5px" }}>
+        <DemoContainer components={["DatePicker", "DatePicker"]}>
+          <DatePicker
+            label="Controlled picker"
+            value={date}
+            onChange={(newValue) => setDate(newValue)}
+          />
+        </DemoContainer>
+      </LocalizationProvider>
       {category !== 0 && nearby[category] && (
         <Swiper
           slidesPerView={3}
@@ -159,11 +174,19 @@ export default function PlacesSlide() {
           modules={[Pagination]}
           sx={{ margin: "20px" }}
         >
-          {nearby[category].map((place, index) => (
-            <SwiperSlide key={index}>
-              <PlacesDetail date={date} place={place} tripId={tripId} />
-            </SwiperSlide>
-          ))}
+          {nearby[category].map((place, index) => {
+            const isExistingPlace = places.some(
+              (item) => item.name === place.name
+            );
+            if (!isExistingPlace) {
+              return (
+                <SwiperSlide key={index}>
+                  <PlacesDetail date={date} place={place} tripId={tripId} />
+                </SwiperSlide>
+              );
+            }
+            return null; 
+          })}
         </Swiper>
       )}
       {loading && <Typography>Loading...</Typography>}

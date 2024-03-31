@@ -8,12 +8,12 @@ const passport = require("passport");
 const cors = require("cors");
 
 const app = express();
-app.use(passport.initialize());
 app.use(
   cors({
     credentials: true,
   })
 );
+app.use(passport.initialize());
 app.use(express.json());
 app.use(userRouter);
 app.use(tripRouter);

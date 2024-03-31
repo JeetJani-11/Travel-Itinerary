@@ -31,12 +31,14 @@ router.get(
   async (req, res) => {
     try {
       const user = await User.findById(req.user._id).populate({
-        path: "trips",
+        path: 'trips',
+        model: 'Trip',
         populate: {
-          path: 'itinerary',
+          path: 'places.place',
           model: 'Place'
         }
       });
+      console.log(user.trips);
       res.status(200).send(user.trips);
     } catch (e) {
       console.error("Error during trips population:", e);
@@ -78,7 +80,7 @@ router.post(
   async (req, res) => {
     try {
       console.log(req.body.text);
-      console.log(req.body)
+      console.log(req.body);
       const trip = await Trip.findById(req.params.id);
       trip.notes = trip.notes.concat(req.body.text);
       await trip.save();
@@ -89,41 +91,60 @@ router.post(
   }
 );
 
-router.delete('/removeNote/:id' , passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const trip = await Trip.findById(req.params.id);
-    trip.notes = trip.notes.filter((note) => note !== req.body.text);
-    console.log(req.body.text);
-    await trip.save();
-    res.send(trip);
-  } catch (e) {
-    res.status(500).send({ e: e.message });
+router.delete(
+  "/removeNote/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const trip = await Trip.findById(req.params.id);
+      trip.notes = trip.notes.filter((note) => note !== req.body.text);
+      console.log(req.body.text);
+      await trip.save();
+      res.send(trip);
+    } catch (e) {
+      res.status(500).send({ e: e.message });
+    }
   }
-})
+);
+
 router.post(
   "/addPlaces/:id",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const place = new Place({ ...req.body, trip: req.params.id });
+      const { name, date, location } = req.body;
+      let place = await Place.findOne({name});
+      if(!place){
+        place = new Place({ ...req.body });
+      }
+      console.log(place);
+      const trip = await Trip.findById(req.params.id);
+      trip.places = trip.places.concat({place : place._id , date});
+      await trip.save();
       await place.save();
-      res.send(place);
+   
+
+      res.send({trip , place});
     } catch (e) {}
   }
 );
 
-router.delete('/removePlace/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    console.log(req.params.id)
-    const place = await Place.findByIdAndDelete(req.params.id);
-    if(!place){
-      return res.status(400).send();
+router.delete(
+  "/removePlace/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      console.log(req.params.id);
+      const place = await Place.findByIdAndDelete(req.params.id);
+      if (!place) {
+        return res.status(400).send();
+      }
+      res.send(place);
+    } catch (e) {
+      res.status(500).send({ e: e.message });
     }
-    res.send(place);
-  } catch (e) {
-    res.status(500).send({ e: e.message });
   }
-})
+);
 
 router.delete(
   "/trip/:id",

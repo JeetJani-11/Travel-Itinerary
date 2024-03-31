@@ -40,22 +40,20 @@ const TripSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    places: [
+      {
+        place: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Place",
+        },
+        date: {
+          type: Date,
+        },
+      },
+    ],
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );
-
-TripSchema.virtual("itinerary", {
-  ref: "Place",
-  localField: "_id",
-  foreignField: "trip",
-});
-
-TripSchema.pre("findOneAndDelete", async function (next) {
-  const filter = this.getFilter();
-  console.log(filter._id);
-  await Place.deleteMany({ trip: filter._id });
-  return next();
-});
 
 const Trip = new mongoose.model("Trip", TripSchema);
 

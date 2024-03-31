@@ -4,6 +4,10 @@ import { setTrip } from "../store/tripSlice";
 import { Card , Typography } from "@mui/material";
 
 import PlacesSlide from "../components/AddPlaces";
+import AddNotes from "../components/AddNotes";
+import AddFriend from "../components/AddFriend";
+import PlacesList from "../components/PlacesList";
+import NotesList from "../components/NotesList";
 export default function Trips() {
   const { state } = useLocation();
   const dispatch = useDispatch();
@@ -33,6 +37,10 @@ export default function Trips() {
         </Typography>
       </Card>
       <PlacesSlide />
+      <AddNotes/>
+      <AddFriend/>
+      <PlacesList/>
+      <NotesList/>
     </div>
   );
 }

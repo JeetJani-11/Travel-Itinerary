@@ -6,14 +6,6 @@ const PlaceSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    date: {
-      type: Date,
-      required: true,
-    },
-    trip: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
     location: {
       x: {
         type: Number,
