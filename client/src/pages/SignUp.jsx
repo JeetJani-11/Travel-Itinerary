@@ -25,7 +25,7 @@ export default function SignUp() {
       email: data.get('email'),
       password: data.get('password'),
     };
-    const res = await fetch('http://localhost:3001/signup', {
+    const res = await fetch('/signup', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -34,6 +34,9 @@ export default function SignUp() {
         body: JSON.stringify(formData),
     })
     if(res.ok){
+      const data = await res.json();
+      window.localStorage.setItem('token', data.token);
+      window.localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/home');
     }
   };
@@ -114,7 +117,7 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={()=>{window.location.href = "http://localhost:3001/login/federated/google"; }}
+              onClick={()=>{window.location.href = "/login/federated/google"; }}
             >
               Sign In With Google
             </Button>

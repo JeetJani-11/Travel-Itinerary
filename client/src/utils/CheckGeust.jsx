@@ -1,5 +1,5 @@
 import React from "react";
-import Cookie from "js-cookie";
+
 import { useNavigate } from "react-router-dom";
 
 export default function CheckGeust({ children }) {
@@ -8,8 +8,8 @@ export default function CheckGeust({ children }) {
   const navigate = useNavigate();
   React.useEffect(() => {
     const tokenLocalStorage = localStorage.getItem("token");
-    const tokenCookie = Cookie.get("token");
-    if (tokenLocalStorage && tokenCookie && tokenLocalStorage === tokenCookie) {
+ 
+    if (tokenLocalStorage) {
       setCheck(false);
     }else {
       setCheck(true);

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import List from "@mui/material/List";
 import dayjs from "dayjs";
-import { useSelector , useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { removePlace } from "../store/tripSlice";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -13,11 +13,15 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
 export default function PlacesList() {
-    const places = useSelector((state) => state.trip.trip.itinerary);
-    const trip = useSelector((state) => state.trip.trip);
-    const token = useSelector((state) => state.auth.token);
-    console.log(places);
- function iterateDates(startDate, endDate) {
+    
+  const places = useSelector((state) => state.trip.trip.places);
+
+  const trip = useSelector((state) => state.trip.trip);
+
+  const token = useSelector((state) => state.auth.token);
+
+
+  function iterateDates(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const dates = [];
@@ -26,37 +30,42 @@ export default function PlacesList() {
       start.setDate(start.getDate() + 1);
     }
     return dates;
- }
+  }
 
- const dates = iterateDates(trip.from, trip.to);
- const [dateStates, setDateStates] = useState(
+  const dates = iterateDates(trip.from, trip.to);
+  const [dateStates, setDateStates] = useState(
     dates.map(() => ({ open: false }))
- );
- const dispatch = useDispatch();
- const formatDate = (date) => {
+  );
+  const dispatch = useDispatch();
+  const formatDate = (date) => {
     return dayjs(date).format("DD MMM");
- };
- const handleClick = (index) => {
+  };
+  const handleClick = (index) => {
     setDateStates(
       dateStates.map((state, i) =>
         i === index ? { open: !state.open } : state
       )
     );
- };
-const handleDeletePlace =  async (place) => {
-    const res = await fetch(`http://localhost:3001/removePlace/${place._id}`, {
+  };
+  const handleDeletePlace = async (place) => {
+    console.log(place);
+    const res = await fetch(`/removePlace`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-      }
+      },
+      body: JSON.stringify({
+        placeId: place._id,
+        tripId: trip._id,
+      }),
     });
     if (res.ok) {
       alert("Place Deleted Successfully");
       dispatch(removePlace(place._id));
     }
-}
- const placesByDate = dates.map((date) => ({
+  };
+  const placesByDate = dates.map((date) => ({
     date,
     places: places.filter((place) => {
       const placeDate = new Date(place.date);
@@ -66,9 +75,9 @@ const handleDeletePlace =  async (place) => {
         placeDate.getDate() === date.getDate()
       );
     }),
- }));
+  }));
 
- return (
+  return (
     <>
       {placesByDate.map(({ date, places }, index) => (
         <List
@@ -88,16 +97,18 @@ const handleDeletePlace =  async (place) => {
             <List component="div" disablePadding>
               {places.length > 0 ? (
                 places.map((place, placeIndex) => (
-                 <ListItemButton
+                  <ListItemButton
                     key={placeIndex}
                     sx={{ pl: 4 }}
-                    onClick={()=>{handleDeletePlace(place)}}
-                 >
+                    onClick={() => {
+                      handleDeletePlace(place.place);
+                    }}
+                  >
                     <ListItemIcon>
                       <DeleteIcon />
                     </ListItemIcon>
-                    <ListItemText primary={place.name} />
-                 </ListItemButton>
+                    <ListItemText primary={place.place.name} />
+                  </ListItemButton>
                 ))
               ) : (
                 <ListItemText primary="No places allocated for this date." />
@@ -107,5 +118,5 @@ const handleDeletePlace =  async (place) => {
         </List>
       ))}
     </>
- );
+  );
 }

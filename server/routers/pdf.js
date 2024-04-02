@@ -39,7 +39,7 @@ router.get(
           model: "User",
         })
         .populate({
-          path: "itinerary",
+          path: "places.place",
           model: "Place",
         });
  
@@ -64,7 +64,7 @@ router.get(
         };
       });
 
-      const places = trip.itinerary.map((place) => {
+      const places = trip.places.map((place) => {
         return {
           name: place.name,
           address: place.address,

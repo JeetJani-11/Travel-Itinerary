@@ -11,14 +11,6 @@ router.post("/signup", async (req, res) => {
     const hashPassword = await bcrypt.hash(password, 8);
     const user = new User({ name, email, password: hashPassword });
     const token = await user.generateAccessToken();
-    res.cookie("token", token, {
-      path: "/",
-      httpOnly: false,
-    });
-    res.cookie("user", user, {
-      path: "/",
-      httpOnly: false,
-    });
     res.status(200).send({ user, token });
   } catch (e) {
     res.status(500).send({ e: e.message });
@@ -37,34 +29,41 @@ router.get(
 
 router.get("/redirect", async (req, res, next) => {
   passport.authenticate(
-    "google",
-    {
-      session: false,
-      successRedirect: "http://localhost:3000",
-      failureRedirect: "http://localhost:3000/login",
-    },
-    async (err, user, info) => {
-      console.log(user, "user", err, "err", info, "info");
-      if (err || !user) {
-        return res.status(400).json({
-          message: "Something is not right",
-          info,
-        });
-      }
-      const token = await user.generateAccessToken();
-      res.cookie("token", token, {
-        path: "/",
-        httpOnly: false,
-      });
-      res.cookie("user", user, {
-        path: "/",
-        httpOnly: false,
-      });
-      res.redirect("http://localhost:3000/home");
-    }
+     "google",
+     {
+       session: false,
+       successRedirect: "http://localhost:3000",
+       failureRedirect: "http://localhost:3000/login",
+     },
+     async (err, user, info) => {
+       if (err || !user) {
+         return res.status(400).json({
+           message: "Something is not right",
+           info,
+         });
+       }
+       const token = await user.generateAccessToken();
+       // Use encodeURIComponent to safely escape the JSON string
+       const userInfo = encodeURIComponent(JSON.stringify(user));
+       const response = `
+         <html> 
+           <body> 
+             <script>
+             window.localStorage.setItem("token", "${token}"); 
+             window.localStorage.setItem("user", decodeURIComponent("${userInfo}")); 
+             window.location.href = "http://localhost:3000/home"; 
+             </script> 
+           </body> 
+         </html>
+       `;
+       console.log(response);
+       res.send(response);
+     }
   )(req, res, next);
-});
-
+ });
+ 
+ 
+ 
 router.post("/login", async (req, res, next) => {
   passport.authenticate(
     "local",
@@ -77,15 +76,8 @@ router.post("/login", async (req, res, next) => {
         });
       }
       const token = await user.generateAccessToken();
-      res.cookie("token", token, {
-        path: "/",
-        httpOnly: false,
-      });
-      res.cookie("user", user, {
-        path: "/",
-        httpOnly: false,
-      });
-      res.send({ user, token });
+      res.status(200).send({ user, token });
+      next();
     }
   )(req, res, next);
 });

@@ -10,11 +10,11 @@ export const tripSlice = createSlice({
       state.trip = payload;
     },
     addPlace: (state, { payload }) => {
-      state.trip.itinerary.push(payload);
+      state.trip.places.push(payload);
     },
     removePlace: (state, { payload }) => {
-      state.trip.itinerary = state.trip.itinerary.filter(
-        (place) => place.id !== payload
+      state.trip.places = state.trip.places.filter(
+        (place) => place.place.id !== payload
       );
     },
     addNote: (state, { payload }) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import Cookie from "js-cookie";
+
 import { setUser } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -9,30 +9,16 @@ export default function CheckAuth({ children }) {
   const [Loading, setLoading] = React.useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  console.log("CheckAuth" , window.localStorage.getItem("token") , window.localStorage.getItem("user"));
   React.useEffect(() => {
     const tokenLocalStorage = localStorage.getItem("token");
-    const tokenCookie = Cookie.get("token");
-    console.log(tokenLocalStorage, tokenCookie);
-    if (tokenLocalStorage && tokenCookie && tokenLocalStorage === tokenCookie) {
-      dispatch(setUser({ user: Cookie.get("user"), token: tokenCookie }));
-      setCheck(true);
-    } else if (
-      (tokenCookie && !tokenLocalStorage) ||
-      (tokenLocalStorage && tokenCookie && tokenLocalStorage !== tokenCookie)
-    ) {
-      dispatch(setUser({ user: Cookie.get("user"), token: tokenCookie }));
+    if (tokenLocalStorage) {
+      dispatch(setUser({ user: localStorage.getItem('user'), token: tokenLocalStorage}));
       setCheck(true);
     } else {
-      if (tokenLocalStorage) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      }
-      if (tokenCookie) {
-        Cookie.remove("token");
-        Cookie.remove("user");
-      }
       setCheck(false);
     }
+
     setLoading(false);
   }, []);
   return Loading ? (

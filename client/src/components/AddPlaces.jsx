@@ -26,7 +26,7 @@ const PlacesDetail = ({ date, place, tripId }) => {
   const dispatch = useDispatch();
   const addPlacehandler = async (place) => {
     console.log(place);
-    const res = await fetch(`http://localhost:3001/addPlaces/${tripId}`, {
+    const res = await fetch(`/addPlaces/${tripId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +40,7 @@ const PlacesDetail = ({ date, place, tripId }) => {
     });
     const data = await res.json();
     if (res.ok) {
-      dispatch(addPlace(data));
+      dispatch(addPlace({place : data , date}));
     }
     console.log(res);
   };
@@ -98,7 +98,7 @@ export default function PlacesSlide() {
   const trip = useSelector((state) => state.trip.trip);
   const token = useSelector((state) => state.auth.token);
   const coordinates = trip.coordinates;
-  const places = trip.itinerary;
+  const places = trip.places;
   const tripId = trip._id;
   const [date, setDate] = React.useState(dayjs(trip.from));
   const [loading, setLoading] = React.useState(false);
@@ -113,9 +113,8 @@ export default function PlacesSlide() {
       setLoading(false);
       return;
     }
-
     const res = await fetch(
-      `http://localhost:3001/nearby?x=${coordinates.x}&y=${coordinates.y}&categoryIds=${event.target.value}`,
+      `/nearby?x=${coordinates.x}&y=${coordinates.y}&categoryIds=${event.target.value}`,
       {
         headers: {
           "content-type": "application/json",
@@ -175,9 +174,11 @@ export default function PlacesSlide() {
           sx={{ margin: "20px" }}
         >
           {nearby[category].map((place, index) => {
+            console.log(places)
             const isExistingPlace = places.some(
-              (item) => item.name === place.name
+              (item) => item.place.name === place.name
             );
+            console.log(isExistingPlace)
             if (!isExistingPlace) {
               return (
                 <SwiperSlide key={index}>

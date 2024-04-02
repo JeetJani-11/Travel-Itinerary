@@ -1,19 +1,34 @@
 import { useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setTrip } from "../store/tripSlice";
-import { Card , Typography } from "@mui/material";
-
+import { Card , Grid, Typography } from "@mui/material";
+import AcrgisMap from "../components/AcrgisMap";
 import PlacesSlide from "../components/AddPlaces";
 import AddNotes from "../components/AddNotes";
 import AddFriend from "../components/AddFriend";
 import PlacesList from "../components/PlacesList";
 import NotesList from "../components/NotesList";
+import { useEffect } from "react";
 export default function Trips() {
   const { state } = useLocation();
   const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
   const trip = state.trip;
   console.log(trip);
   dispatch(setTrip(trip));
+  const loadTrip = async () => {
+    const res = await fetch(`/trip/${trip.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    console.log(data);
+    dispatch(setTrip(data));
+  }
+  useEffect(() =>{
+    loadTrip();
+  }, []);
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
       day: "2-digit",
@@ -22,7 +37,17 @@ export default function Trips() {
   };
 
   return (
-    <div>
+    
+      <Grid  container sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+        borderRadius: '8px',
+        backgroundColor: '#FFFFFF',
+      }}>
+        <Grid item sx={{
+          width: '50%',
+        }}>
       <Card
         sx={{
           margin: "10px",
@@ -41,6 +66,12 @@ export default function Trips() {
       <AddFriend/>
       <PlacesList/>
       <NotesList/>
-    </div>
+      </Grid>
+
+      <Grid sx={{width : '50%'}}>
+        <AcrgisMap/>
+      </Grid>
+
+    </Grid>
   );
 }

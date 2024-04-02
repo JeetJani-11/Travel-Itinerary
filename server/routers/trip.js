@@ -47,6 +47,23 @@ router.get(
   }
 );
 
+router.get("/trip/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate({ path: 'trips', model: 'Trip' });
+    const isValid = user.trips.find((trip) => trip.equals(req.params.id));
+    if (!isValid) {
+      throw new Error("Cannot Access Trip");
+    }
+    const trip = await Trip.findById(req.params.id).populate({
+      path: 'places.place',
+      model: 'Place'
+    });
+    res.send(trip);
+  } catch (e) {
+    res.status(500).send({ e: e.message });
+  }
+});
+
 router.post(
   "/addUser/:id",
   passport.authenticate("jwt", { session: false }),
@@ -124,22 +141,34 @@ router.post(
       await place.save();
    
 
-      res.send({trip , place});
+      res.send(place);
     } catch (e) {}
   }
 );
 
 router.delete(
-  "/removePlace/:id",
+  "/removePlace",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      console.log(req.params.id);
-      const place = await Place.findByIdAndDelete(req.params.id);
-      if (!place) {
+      const { tripId , placeId } = req.body;
+      console.log(tripId, placeId);
+      const trip = await Trip.findById(tripId);
+      console.log(trip);
+      const tripContains = trip.places.find((place) => {
+        console.log(place.place, placeId);
+        return place.place.equals(placeId);
+      });
+      console.log(tripContains);
+      if (!tripContains) {
         return res.status(400).send();
       }
-      res.send(place);
+      trip.places = trip.places.filter((place) => {
+        return !place.place.equals(placeId);
+      });
+      console.log(trip.places);
+      await trip.save();
+      res.send(trip);
     } catch (e) {
       res.status(500).send({ e: e.message });
     }

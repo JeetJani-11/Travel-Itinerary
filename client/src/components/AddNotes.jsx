@@ -8,7 +8,7 @@ export default function AddNotes() {
     const dispatch = useDispatch();
     const handleClick = async() => {
         const text = document.getElementById("note").value;
-        const res = await fetch(`http://localhost:3001/addNotes/${trip.id}`, {
+        const res = await fetch(`/addNotes/${trip.id}`, {
             method : 'POST',
             headers : {
                 'Content-Type' : 'application/json' ,

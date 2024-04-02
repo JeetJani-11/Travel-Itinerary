@@ -12,10 +12,12 @@ const AddFriend = () => {
   const [selectedName, setSelectedName] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   let typingTimeout;
-  console.log(recommendation);
+ 
   const handleSubmit = async () => {
-    if (selectedName && recommendation.includes(selectedName)) {
-      const res = await fetch(`http://localhost:3001/addUser/${tripId}`, {
+    const includes = recommendation.find((name) => name.name === selectedName);
+   
+    if (selectedName && includes) {
+      const res = await fetch(`/addUser/${tripId}`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -32,13 +34,13 @@ const AddFriend = () => {
 
   const handleTyping = (event) => {
     const { value } = event.target;
-    console.log(value);
+    
     setIsTyping(true);
     clearTimeout(typingTimeout);
 
     typingTimeout = setTimeout(async () => {
-      console.log("User stopped typing");
-      const res = await fetch(`http://localhost:3001/users/${value}`, {
+
+      const res = await fetch(`/users/${value}`, {
         headers: {
           "content-type": "application/json",
         },
@@ -49,7 +51,7 @@ const AddFriend = () => {
       setIsTyping(false);
     }, 500);
   };
-
+  console.log(selectedName , recommendation);
   return (
     <Card
       style={{
