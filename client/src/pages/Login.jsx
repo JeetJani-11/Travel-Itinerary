@@ -104,7 +104,7 @@ export default function SignIn() {
               sx={{ mt: 3, mb: 2 }}
               onClick={() => {
                 window.location.href =
-                  "/login/federated/google";
+                  "http://localhost:3001/login/federated/google";
               }}
             >
               Sign In With Google

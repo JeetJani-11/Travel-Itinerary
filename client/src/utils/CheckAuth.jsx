@@ -1,5 +1,5 @@
 import React from "react";
-
+import Cookies from "js-cookie";
 import { setUser } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,12 @@ export default function CheckAuth({ children }) {
       dispatch(setUser({ user: localStorage.getItem('user'), token: tokenLocalStorage}));
       setCheck(true);
     } else {
+      if(Cookies.get("token") && Cookies.get("user")) {
+        localStorage.setItem("token", Cookies.get("token"));
+        localStorage.setItem("user", Cookies.get("user"));
+        dispatch(setUser({ user: Cookies.get("user"), token: Cookies.get("token")}));
+        setCheck(true);
+      }
       setCheck(false);
     }
 

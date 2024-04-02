@@ -43,21 +43,9 @@ router.get("/redirect", async (req, res, next) => {
          });
        }
        const token = await user.generateAccessToken();
-       // Use encodeURIComponent to safely escape the JSON string
-       const userInfo = encodeURIComponent(JSON.stringify(user));
-       const response = `
-         <html> 
-           <body> 
-             <script>
-             window.localStorage.setItem("token", "${token}"); 
-             window.localStorage.setItem("user", decodeURIComponent("${userInfo}")); 
-             window.location.href = "http://localhost:3000/home"; 
-             </script> 
-           </body> 
-         </html>
-       `;
-       console.log(response);
-       res.send(response);
+       res.cookie("token", token, { httpOnly: false });
+       res.cookie("user", user, { httpOnly: false });
+       res.redirect("http://localhost:3000/home");
      }
   )(req, res, next);
  });
