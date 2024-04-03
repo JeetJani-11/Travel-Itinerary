@@ -25,7 +25,7 @@ export default function SignUp() {
       email: data.get('email'),
       password: data.get('password'),
     };
-    const res = await fetch('/signup', {
+    const res = await fetch('/api/signup', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

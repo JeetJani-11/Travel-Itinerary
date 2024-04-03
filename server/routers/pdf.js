@@ -42,7 +42,6 @@ router.get(
           path: "places.place",
           model: "Place",
         });
- 
       const canCreate = trip.travellers.find((element) =>
         element.equals(req.user._id)
       );
@@ -66,8 +65,7 @@ router.get(
 
       const places = trip.places.map((place) => {
         return {
-          name: place.name,
-          address: place.address,
+          name: place.place.name,
           date: place.date,
         };
       });
@@ -85,6 +83,7 @@ router.get(
         if (placesOnDate.length === 0) {
            placesOnDate.push({ name: "No Places to visit" });
         }
+        console.log(placesOnDate)
         return {
            date: formatDate(date),
            places: placesOnDate,
@@ -96,7 +95,7 @@ router.get(
           content: note,
         };
       });
-
+      console.log(placesByDate)
       var document = {
         html: html,
         css : "./utils/style.css",

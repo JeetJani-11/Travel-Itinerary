@@ -10,7 +10,7 @@ export default function Home() {
   const dispatch = useDispatch();
   console.log(token);
   const getTrips = async () => {
-    const response = await fetch("/trips", {
+    const response = await fetch("/api/trips", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

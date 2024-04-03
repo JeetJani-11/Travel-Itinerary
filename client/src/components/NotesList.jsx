@@ -21,7 +21,7 @@ export default function NotesList() {
     setOpen(!open);
   };
   const handleDeleteNote = async (note) => {
-    const res = await fetch(`/removeNote/${trip._id}`, {
+    const res = await fetch(`/api/removeNote/${trip._id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

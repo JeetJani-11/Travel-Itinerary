@@ -18,7 +18,7 @@ export default function AddTrip() {
     if (form.destination && form.from && form.to) {
       console.log(form);
       const res = await fetch(
-        `/geocoding?address=${form.destination}`,
+        `/api/geocoding?address=${form.destination}`,
         {
           method: "GET",
         }
@@ -29,7 +29,7 @@ export default function AddTrip() {
         alert("Invalid Address");
         return;
       }
-      const res1 = await fetch("/trip", {
+      const res1 = await fetch("/api/trip", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

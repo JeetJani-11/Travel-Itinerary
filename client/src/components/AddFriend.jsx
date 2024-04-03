@@ -17,7 +17,7 @@ const AddFriend = () => {
     const includes = recommendation.find((name) => name.name === selectedName);
    
     if (selectedName && includes) {
-      const res = await fetch(`/addUser/${tripId}`, {
+      const res = await fetch(`/api/addUser/${tripId}`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -40,7 +40,7 @@ const AddFriend = () => {
 
     typingTimeout = setTimeout(async () => {
 
-      const res = await fetch(`/users/${value}`, {
+      const res = await fetch(`/api/users/${value}`, {
         headers: {
           "content-type": "application/json",
         },

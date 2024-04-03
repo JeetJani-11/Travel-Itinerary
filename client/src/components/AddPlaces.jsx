@@ -26,7 +26,7 @@ const PlacesDetail = ({ date, place, tripId }) => {
   const dispatch = useDispatch();
   const addPlacehandler = async (place) => {
     console.log(place);
-    const res = await fetch(`/addPlaces/${tripId}`, {
+    const res = await fetch(`/api/addPlaces/${tripId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +114,7 @@ export default function PlacesSlide() {
       return;
     }
     const res = await fetch(
-      `/nearby?x=${coordinates.x}&y=${coordinates.y}&categoryIds=${event.target.value}`,
+      `/api/nearby?x=${coordinates.x}&y=${coordinates.y}&categoryIds=${event.target.value}`,
       {
         headers: {
           "content-type": "application/json",

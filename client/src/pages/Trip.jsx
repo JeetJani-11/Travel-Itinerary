@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setTrip } from "../store/tripSlice";
-import { Card , Grid, Typography } from "@mui/material";
+import { saveAs } from "file-saver";
+import { Button, Card, Grid, Typography } from "@mui/material";
 import AcrgisMap from "../components/AcrgisMap";
 import PlacesSlide from "../components/AddPlaces";
 import AddNotes from "../components/AddNotes";
@@ -17,7 +18,7 @@ export default function Trips() {
   console.log(trip);
   dispatch(setTrip(trip));
   const loadTrip = async () => {
-    const res = await fetch(`/trip/${trip.id}`, {
+    const res = await fetch(`/api/trip/${trip.id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -25,8 +26,8 @@ export default function Trips() {
     const data = await res.json();
     console.log(data);
     dispatch(setTrip(data));
-  }
-  useEffect(() =>{
+  };
+  useEffect(() => {
     loadTrip();
   }, []);
   const formatDate = (date) => {
@@ -35,43 +36,67 @@ export default function Trips() {
       month: "short",
     });
   };
+  const handlePdf = async () => {
+    console.log("pdf");
+    const response = await fetch(`/api/pdf/${trip.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.blob()
+    const blob = new Blob([data], { type: "application/pdf" });
+    saveAs(blob, "trip.pdf");
+    console.log(response);
+  };
 
   return (
-    
-      <Grid  container sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-        borderRadius: '8px',
-        backgroundColor: '#FFFFFF',
-      }}>
-        <Grid item sx={{
-          width: '50%',
-        }}>
-      <Card
+    <Grid
+      container
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+        borderRadius: "8px",
+        backgroundColor: "#FFFFFF",
+      }}
+    >
+      <Grid
+        item
         sx={{
-          margin: "10px",
-          padding: "10px",
-          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-          borderRadius: "8px",
+          width: "50%",
         }}
       >
-        <Typography variant="h6">{trip.destination}</Typography>
-        <Typography variant="body1">
-          {formatDate(trip.from)} - {formatDate(trip.to)}
-        </Typography>
-      </Card>
-      <PlacesSlide />
-      <AddNotes/>
-      <AddFriend/>
-      <PlacesList/>
-      <NotesList/>
+        <Card
+          sx={{
+            margin: "10px",
+            padding: "10px",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            borderRadius: "8px",
+          }}
+        >
+          <Typography variant="h6">{trip.destination}</Typography>
+          <Typography variant="body1">
+            {formatDate(trip.from)} - {formatDate(trip.to)}
+          </Typography>
+        </Card>
+        <PlacesSlide />
+        <AddNotes />
+        <AddFriend />
+        <PlacesList />
+        <NotesList />
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ margin: "10px" }}
+          onClick={handlePdf}
+        >
+          Create PDF of Trip
+        </Button>
       </Grid>
 
-      <Grid sx={{width : '50%'}}>
-        <AcrgisMap/>
+      <Grid sx={{ width: "50%" }}>
+        <AcrgisMap />
       </Grid>
-
     </Grid>
   );
 }

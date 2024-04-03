@@ -49,7 +49,7 @@ export default function PlacesList() {
   };
   const handleDeletePlace = async (place) => {
     console.log(place);
-    const res = await fetch(`/removePlace`, {
+    const res = await fetch(`/api/removePlace`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
