@@ -87,8 +87,6 @@ router.post(
 );
 
 router.get("/user", auth, async (req, res) => {
-  console.log("hellooo");
-  console.log(res.headers);
   res.json(req.user);
 });
 

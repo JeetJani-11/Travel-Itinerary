@@ -93,7 +93,6 @@ export default function Trips() {
           Create PDF of Trip
         </Button>
       </Grid>
-
       <Grid sx={{ width: "50%" }}>
         <AcrgisMap />
       </Grid>

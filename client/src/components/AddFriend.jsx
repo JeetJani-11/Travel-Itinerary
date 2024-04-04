@@ -15,7 +15,6 @@ const AddFriend = () => {
  
   const handleSubmit = async () => {
     const includes = recommendation.find((name) => name.name === selectedName);
-   
     if (selectedName && includes) {
       const res = await fetch(`/api/addUser/${tripId}`, {
         method: "POST",
@@ -66,7 +65,7 @@ const AddFriend = () => {
         id="controllable-states-demo"
         options={recommendation}
         getOptionLabel={(option) => option.name}
-        sx={{ width: 300, marginTop: 5, marginLeft: 20, marginBottom: 20 }}
+        sx={{ width: "300px", marginTop: "10px", marginLeft: "20px", marginBottom: "20px" }}
         renderInput={(params) => (
           <TextField {...params} label="Add Friend" onChange={handleTyping} />
         )}
@@ -76,7 +75,7 @@ const AddFriend = () => {
         type="submit"
         onClick={handleSubmit}
         variant="contained"
-        sx={{ marginTop: 5, marginLeft: 3, marginBottom: 20 }}
+        sx={{ margin: "10px" }}
       >
         Add Friend to Trip
       </Button>

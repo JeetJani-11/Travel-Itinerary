@@ -64,6 +64,18 @@ router.get("/trip/:id", passport.authenticate("jwt", { session: false }), async 
   }
 });
 
+router.get('/search/trips/:s/:name' , passport.authenticate('jwt' , {session : false}) , async(req , res) => {
+  try {
+    const regex = new RegExp(req.params.s + '.*' + req.params.name + '$', "i");
+    const places = await Place.find({ name : { $regex: regex } });
+    console.log(places);
+    res.send(places);
+  } catch(e) {
+    res.status(500).send({error: e.message});
+  }
+});
+
+
 router.post(
   "/addUser/:id",
   passport.authenticate("jwt", { session: false }),

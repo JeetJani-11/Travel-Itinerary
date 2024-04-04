@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Card from "@mui/material/Card";
+import { TextField } from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import Autocomplete from "@mui/material/Autocomplete";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -40,7 +44,7 @@ const PlacesDetail = ({ date, place, tripId }) => {
     });
     const data = await res.json();
     if (res.ok) {
-      dispatch(addPlace({place : data , date}));
+      dispatch(addPlace({ place: data, date }));
     }
     console.log(res);
   };
@@ -100,10 +104,32 @@ export default function PlacesSlide() {
   const coordinates = trip.coordinates;
   const places = trip.places;
   const tripId = trip._id;
+  const [recommendation, setRecommendation] = useState([]);
   const [date, setDate] = React.useState(dayjs(trip.from));
   const [loading, setLoading] = React.useState(false);
   const [nearby, setNearby] = React.useState({});
   const [category, setCategory] = React.useState();
+  let typingTimeout;
+  const dispatch = useDispatch();
+  const addPlacehandler = async () => {
+    const res = await fetch(`/api/addPlaces/${tripId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: customPlaceName + " " + trip.destination,
+        date: date,
+        location: { x: -1, y: -1 },
+      }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      dispatch(addPlace({ place: data, date }));
+    }
+    console.log(res);
+  };
   console.log(date);
   const handleChange = async (event) => {
     setCategory(event.target.value);
@@ -128,7 +154,28 @@ export default function PlacesSlide() {
     setNearby({ ...nearby, ...obj });
     setLoading(false);
   };
-
+  const handleTyping = (event) => {
+    const { value } = event.target;
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(async () => {
+      const res = await fetch(
+        `/api/search/trips/${value}/${trip.destination}`,
+        {
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      setRecommendation(data);
+      console.log(data);
+    }, 500);
+  };
+  const [customPlace, setCustomPlace] = useState({ name: "" });
+  const [customPlaceName , setCustomPlaceName] = useState('')
+  const [isCustom, setIsCustom] = useState(false);
+  console.log(customPlace);
   return (
     <Card
       sx={{
@@ -138,63 +185,115 @@ export default function PlacesSlide() {
         borderRadius: "8px",
       }}
     >
-      <FormControl fullWidth sx={{ margin: "5px" }}>
-        <InputLabel id="demo-simple-select-label">Category</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={category}
-          displayEmpty={false}
-          defaultValue={0}
-          label="Category"
-          onChange={handleChange}
-        >
-          {Categories.map((category, index) => (
-            <MenuItem key={index} value={category.code}>
-              {category.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ margin: "5px" }}>
-        <DemoContainer components={["DatePicker", "DatePicker"]}>
-          <DatePicker
-            label="Controlled picker"
-            value={date}
-            onChange={(newValue) => setDate(newValue)}
+      <FormControlLabel
+        control={<Switch checked={isCustom} onChange={() => setIsCustom(!isCustom)} />}
+        label="Custom Place"
+        sx={{ marginBottom: "10px" }}
+      />
+
+      {isCustom && (
+        <>
+          <Autocomplete
+            id="controllable-states-demo"
+            options={recommendation}
+            value={customPlace}
+            onChange={(event, newValue) => {
+              if (newValue) {
+                setCustomPlaceName(newValue.name);
+              }
+              setCustomPlace(newValue);
+            }}
+            getOptionLabel={(option) => option.name}
+            sx={{ width: "300px", marginTop: "10px", marginLeft: "20px", marginBottom: "20px" }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Add Custom Place"
+                onChange={(event) => {
+                  handleTyping(event);
+                  setCustomPlaceName(event.target.value);
+                }}
+                value={customPlaceName}
+              />
+            )}
           />
-        </DemoContainer>
-      </LocalizationProvider>
-      {category !== 0 && nearby[category] && (
-        <Swiper
-          slidesPerView={3}
-          spaceBetween={30}
-          pagination={{ clickable: true }}
-          modules={[Pagination]}
-          sx={{ margin: "20px" }}
-        >
-          {nearby[category].map((place, index) => {
-            console.log(places)
-            const isExistingPlace = places.some(
-              (item) => item.place.name === place.name
-            );
-            console.log(isExistingPlace)
-            if (!isExistingPlace) {
-              return (
-                <SwiperSlide key={index}>
-                  <PlacesDetail date={date} place={place} tripId={tripId} />
-                </SwiperSlide>
-              );
-            }
-            return null; 
-          })}
-        </Swiper>
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ margin: "10px" }}
+            onClick={addPlacehandler}
+          >
+            Add Custom Place
+          </Button>
+        </>
       )}
-      {loading && <Typography>Loading...</Typography>}
-      {!loading && category && !nearby[category] && (
-        <Typography>No Places in this Category</Typography>
+      {!isCustom && (
+        <>
+          <FormControl fullWidth sx={{ margin: "5px" }}>
+            <InputLabel id="demo-simple-select-label">Category</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={category}
+              displayEmpty={false}
+              defaultValue={0}
+              label="Category"
+              onChange={handleChange}
+            >
+              {Categories.map((category, index) => (
+                <MenuItem key={index} value={category.code}>
+                  {category.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <LocalizationProvider
+            dateAdapter={AdapterDayjs}
+            sx={{ margin: "5px" }}
+          >
+            <DemoContainer components={["DatePicker", "DatePicker"]}>
+              <DatePicker
+                label="Controlled picker"
+                value={date}
+                onChange={(newValue) => setDate(newValue)}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
+          {category !== 0 && nearby[category] && (
+            <Swiper
+              slidesPerView={3}
+              spaceBetween={30}
+              pagination={{ clickable: true }}
+              modules={[Pagination]}
+              sx={{ margin: "20px" }}
+            >
+              {nearby[category].map((place, index) => {
+                console.log(places);
+                const isExistingPlace = places.some(
+                  (item) => item.place.name === place.name
+                );
+                console.log(isExistingPlace);
+                if (!isExistingPlace) {
+                  return (
+                    <SwiperSlide key={index}>
+                      <PlacesDetail date={date} place={place} tripId={tripId} />
+                    </SwiperSlide>
+                  );
+                }
+                return null;
+              })}
+            </Swiper>
+          )}
+          {loading && <Typography>Loading...</Typography>}
+          {!loading && category && !nearby[category] && (
+            <Typography>No Places in this Category</Typography>
+          )}
+          {!loading && !category && (
+            <Typography>Please Select Category</Typography>
+          )}
+        </>
       )}
-      {!loading && !category && <Typography>Please Select Category</Typography>}
     </Card>
   );
 }
