@@ -8,34 +8,21 @@ import PlacesSlide from "../components/AddPlaces";
 import AddNotes from "../components/AddNotes";
 import AddFriend from "../components/AddFriend";
 import PlacesList from "../components/PlacesList";
+import { Navigate } from "react-router-dom";
+import formatDate from "../utils/formatDate";
 import NotesList from "../components/NotesList";
-import { useEffect } from "react";
+
 export default function Trips() {
   const { state } = useLocation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
+  if (!state) {
+    return <Navigate to="/home" />;
+  }
   const trip = state.trip;
-  console.log(trip);
+  
   dispatch(setTrip(trip));
-  const loadTrip = async () => {
-    const res = await fetch(`/api/trip/${trip.id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await res.json();
-    console.log(data);
-    dispatch(setTrip(data));
-  };
-  useEffect(() => {
-    loadTrip();
-  }, []);
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      day: "2-digit",
-      month: "short",
-    });
-  };
+
   const handlePdf = async () => {
     console.log("pdf");
     const response = await fetch(`/api/pdf/${trip.id}`, {
@@ -43,7 +30,7 @@ export default function Trips() {
         Authorization: `Bearer ${token}`,
       },
     });
-    const data = await response.blob()
+    const data = await response.blob();
     const blob = new Blob([data], { type: "application/pdf" });
     saveAs(blob, "trip.pdf");
     console.log(response);

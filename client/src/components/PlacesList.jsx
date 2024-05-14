@@ -11,15 +11,14 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import formatDate from "../utils/formatDate";
 
 export default function PlacesList() {
-    
   const places = useSelector((state) => state.trip.trip.places);
 
   const trip = useSelector((state) => state.trip.trip);
 
   const token = useSelector((state) => state.auth.token);
-
 
   function iterateDates(startDate, endDate) {
     const start = new Date(startDate);
@@ -37,9 +36,7 @@ export default function PlacesList() {
     dates.map(() => ({ open: false }))
   );
   const dispatch = useDispatch();
-  const formatDate = (date) => {
-    return dayjs(date).format("DD MMM");
-  };
+
   const handleClick = (index) => {
     setDateStates(
       dateStates.map((state, i) =>

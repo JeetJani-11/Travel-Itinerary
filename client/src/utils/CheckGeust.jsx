@@ -1,26 +1,18 @@
-import React from "react";
-
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/authSlice";
+import { Navigate } from "react-router-dom";
 
 export default function CheckGeust({ children }) {
-  const [check, setCheck] = React.useState(false);
-  const [Loading, setLoading] = React.useState(true);
-  const navigate = useNavigate();
-  React.useEffect(() => {
-    const tokenLocalStorage = localStorage.getItem("token");
- 
-    if (tokenLocalStorage) {
-      setCheck(false);
-    }else {
-      setCheck(true);
-    }
-    setLoading(false);
-  }, []);
-  return Loading ? (
-    <div>Loading...</div>
-  ) : check ? (
-    <>{children}</>
-  ) : (
-    navigate("/home")
-  );
+  const dispatch = useDispatch();
+  const tokenLocalStorage = localStorage.getItem("token");
+  const userLocalStorage = localStorage.getItem("user");
+  if (tokenLocalStorage) {
+    console.log("CheckGuest");
+    dispatch(setUser({ user: userLocalStorage, token: tokenLocalStorage }));
+    return <Navigate to="/home" replace />;
+  } else {
+    dispatch(setUser({ user: null, token: null }));
+    return <>{children}</>;
+  }
 }

@@ -70,7 +70,7 @@ router.post("/login", async (req, res, next) => {
   )(req, res, next);
 });
 
-router.post(
+router.get(
   "/logout",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {

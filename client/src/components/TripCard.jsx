@@ -1,18 +1,12 @@
 import { Card } from "@mui/material";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import formatDate from "../utils/formatDate";
 export default function TripCard({ trip }) {
-    const navigate = useNavigate();
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      day: "2-digit",
-      month: "short",
-    });
-  };
-
+  const navigate = useNavigate();
   const handleClick = () => {
-    navigate(`/trip` , { state: { trip } });
-  }
+    navigate(`/trip`, { state: { trip } });
+  };
   return (
     <Card
       sx={{

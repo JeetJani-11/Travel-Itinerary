@@ -64,9 +64,10 @@ router.get("/trip/:id", passport.authenticate("jwt", { session: false }), async 
   }
 });
 
-router.get('/search/trips/:s/:name' , passport.authenticate('jwt' , {session : false}) , async(req , res) => {
+router.get('/search/trips/:name' , passport.authenticate('jwt' , {session : false}) , async(req , res) => {
   try {
-    const regex = new RegExp(req.params.s + '.*' + req.params.name + '$', "i");
+    console.log(req.params.name);
+    const regex = new RegExp(req.params.name + '$', "i");
     const places = await Place.find({ name : { $regex: regex } });
     console.log(places);
     res.send(places);

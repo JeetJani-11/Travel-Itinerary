@@ -5,9 +5,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { useDispatch, useSelector } from "react-redux";
 import { addTrip } from "../store/tripsSlice";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function AddTrip() {
-  const token = useSelector((state) => state.auth.token); 
+  const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const [form, setForm] = useState({
     destination: "",
@@ -17,16 +18,14 @@ export default function AddTrip() {
   const onSubmit = async () => {
     if (form.destination && form.from && form.to) {
       console.log(form);
-      const res = await fetch(
-        `/api/geocoding?address=${form.destination}`,
-        {
-          method: "GET",
-        }
-      );
+      const id = toast.loading("Adding Trip....");
+      const res = await fetch(`/api/geocoding?address=${form.destination}`, {
+        method: "GET",
+      });
       const data = await res.json();
       console.log(data);
       if (data.e) {
-        alert("Invalid Address");
+        toast.update(id, { type: "error", render: "Failed to add trip" , isLoading: false , autoClose: 2000});
         return;
       }
       const res1 = await fetch("/api/trip", {
@@ -46,31 +45,42 @@ export default function AddTrip() {
         }),
       });
       const addedTrip = await res1.json();
+
       if (res1.ok) {
-        alert("Trip Added Successfully");
+        toast.update(id, { type: "success", render: "Trip Added" , isLoading: false , autoClose: 2000});
         setForm({
           destination: "",
           from: null,
           to: null,
         });
         dispatch(addTrip(addedTrip));
+      } else {
+        toast.update(id, { type: "error", render: "Failed to add trip"  , isLoading: false , autoClose: 2000});
       }
     } else {
-      alert("Please fill all the fields");
+      toast.error("Please fill all the fields");
     }
   };
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <Card sx={{ padding: "20px", marginBottom: "20px" }}>
         <Typography variant="h6" sx={{ marginBottom: "10px" }}>
           Add New Trip
         </Typography>
         <Card sx={{ padding: "10px" }}>
-          <Box
-            display="flex"
-            alignItems="center"
-            sx={{ padding: "10px" }}
-          >
+          <Box display="flex" alignItems="center" sx={{ padding: "10px" }}>
             <TextField
               id="destination"
               label="Destination"
@@ -90,7 +100,12 @@ export default function AddTrip() {
                 value={[form.from, form.to]}
               />
             </LocalizationProvider>
-            <Button variant="contained" color="primary" sx={{margin : '10px'}} onClick={onSubmit}>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ margin: "10px" }}
+              onClick={onSubmit}
+            >
               Submit
             </Button>
           </Box>

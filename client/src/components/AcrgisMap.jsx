@@ -11,10 +11,10 @@ import { useSelector } from "react-redux";
 
 const AcrgisMap = () => {
   const places = useSelector((state) => state.trip.trip.places);
+  const trip = useSelector((state) => state.trip.trip);
+  console.log();
   const loadMap = () => {
-    
-    esriConfig.apiKey =
-      "AAPKcfae0a2aa06142eba3996beda2e801e7AJDhip2daafTRE-PKB-wxdUxpoOAoJ3ymrFwjpx2AHEl3_hynuc-XYsGadlFcdMO";
+    esriConfig.apiKey = process.env.REACT_APP_ARCGIS_API_KEY;
     const placesLayer = new GraphicsLayer({
       id: "placesLayer",
     });
@@ -23,21 +23,12 @@ const AcrgisMap = () => {
       layers: [placesLayer],
     });
     let view;
-    if (places.length > 0) {
-      view = new MapView({
-        map: map,
-        center: [places[0].place.location.x, places[0].place.location.y],
-        zoom: 13,
-        container: "viewDiv",
-      });
-    } else {
-      view = new MapView({
-        map: map,
-        zoom: 13,
-        container: "viewDiv",
-      });
-    }
-
+    view = new MapView({
+      map: map,
+      center: [trip.coordinates.x, trip.coordinates.y],
+      zoom: 13,
+      container: "viewDiv",
+    });
     const graphicsLayer = new GraphicsLayer({
       elevationInfo: {
         mode: "on-the-ground",
@@ -83,11 +74,7 @@ const AcrgisMap = () => {
 
   return (
     <>
-      <div
-        id="viewDiv"
-        className="map-container"
-      ></div>
-      
+      <div id="viewDiv" className="map-container"></div>
     </>
   );
 };
